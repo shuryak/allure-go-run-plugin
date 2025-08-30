@@ -1,0 +1,32 @@
+<!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
+<idea-plugin>
+    <id>com.github.shuryak.alluregorunplugin</id>
+    <name>Allure Go Run</name>
+    <vendor>shuryak</vendor>
+
+    <depends>com.intellij.modules.platform</depends>
+    <depends>org.jetbrains.plugins.go</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <runLineMarkerContributor
+                language="go"
+                implementationClass="com.github.shuryak.alluregorunplugin.AllureGoRunLineMarkerContributor"
+        />
+        <runConfigurationProducer
+                implementation="com.github.shuryak.alluregorunplugin.AllureGoRunConfigurationProducer"
+        />
+        <configurationType
+                implementation="com.github.shuryak.alluregorunplugin.AllureGoTestConfigurationType"
+        />
+    </extensions>
+    <actions>
+        <action
+                class="com.github.shuryak.alluregorunplugin.RunAllureGoTestAction"
+                id="com.github.shuryak.alluregorunplugin.RunAllureGoTestAction"
+                text="Run Allure Go Test"
+                description="Runs the Allure Go Test configuration"
+        >
+            <add-to-group group-id="RunMenu" anchor="last"/>
+        </action>
+    </actions>
+</idea-plugin>
