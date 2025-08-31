@@ -20,13 +20,13 @@ jobs:
           tool-cache: false
           large-packages: false
 
-      # Check out the current repository
+      # Check out the repository at the release tag
       - name: Fetch Sources
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.release.tag_name }}
 
-      # Set up the Java environment for the next steps
+      # Set up Java
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
@@ -38,6 +38,10 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
         with:
           cache-read-only: true
+
+      # Build the plugin
+      - name: Build plugin
+        run: ./gradlew buildPlugin
 
       # Update the Unreleased section with the current release note
       - name: Patch Changelog
@@ -51,13 +55,13 @@ jobs:
 
           ./gradlew patchChangelog --release-note-file=$RELEASE_NOTE
 
-      # Upload an artifact as a release asset
+      # Upload built plugin as a release asset
       - name: Upload Release Asset
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload ${{ github.event.release.tag_name }} ./build/distributions/*
+        run: gh release upload ${{ github.event.release.tag_name }} ./build/distributions/*.zip
 
-      # Create a pull request
+      # Create a pull request with changelog update
       - name: Create Pull Request
         if: ${{ steps.properties.outputs.changelog != '' }}
         env:
