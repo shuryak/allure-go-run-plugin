@@ -3,8 +3,10 @@ package com.github.shuryak.alluregorunplugin.psi
 import com.goide.psi.GoFile
 import com.goide.psi.GoMethodDeclaration
 import com.goide.psi.GoParameterDeclaration
+import com.goide.psi.GoTopLevelDeclaration
 import com.goide.psi.GoType
 import com.goide.psi.GoTypeReferenceExpression
+import com.goide.psi.impl.GoPackage
 import com.goide.psi.impl.GoPointerTypeImpl
 import com.goide.psi.impl.GoTypeImpl
 
@@ -35,5 +37,13 @@ object GoPsiExtension {
             is GoTypeImpl -> receiverType
             else -> return null
         }
+    }
+
+    fun GoTopLevelDeclaration.getGoPackage(): GoPackage? {
+        return GoPackage.of(this.containingFile as GoFile)
+    }
+
+    fun GoPackage.collectGoFiles(): Collection<GoFile> {
+        return this.files()?.filterIsInstance<GoFile>() ?: emptyList()
     }
 }
