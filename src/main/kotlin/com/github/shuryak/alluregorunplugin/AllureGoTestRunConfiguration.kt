@@ -1,8 +1,9 @@
 package com.github.shuryak.alluregorunplugin
 
+import com.github.shuryak.alluregorunplugin.psi.GoPsiExtension.collectGoFiles
+import com.github.shuryak.alluregorunplugin.psi.GoPsiExtension.getGoPackage
 import com.github.shuryak.alluregorunplugin.psi.GoPsiExtension.getReceiverGoType
 import com.github.shuryak.alluregorunplugin.psi.GoPsiExtension.isAllureFrameworkProviderT
-import com.goide.GoFileType
 import com.goide.execution.GoBuildingRunConfiguration
 import com.goide.execution.testing.GoTestFinder.isTestFunction
 import com.goide.execution.testing.GoTestRunConfiguration
@@ -16,7 +17,7 @@ import com.goide.psi.impl.GoReferenceExpressionImpl
 import com.intellij.execution.RunManager
 import com.intellij.execution.RunnerAndConfigurationSettings
 import com.intellij.execution.actions.ConfigurationContext
-import com.intellij.execution.actions.RunConfigurationProducer
+import com.intellij.execution.actions.LazyRunConfigurationProducer
 import com.intellij.execution.configurations.ConfigurationFactory
 import com.intellij.execution.configurations.ConfigurationType
 import com.intellij.execution.configurations.ConfigurationTypeUtil
@@ -27,15 +28,12 @@ import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiElement
 import com.intellij.openapi.util.Ref
-import com.intellij.psi.PsiManager
-import com.intellij.psi.search.FileTypeIndex
-import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import javax.swing.Icon
 
-class AllureGoRunConfigurationProducer : RunConfigurationProducer<AllureGoTestRunConfiguration>(true) {
+class AllureGoRunConfigurationProducer : LazyRunConfigurationProducer<AllureGoTestRunConfiguration>() {
     override fun getConfigurationFactory(): ConfigurationFactory {
         return AllureGoTestConfigurationType.instance.configurationFactories[0]
     }
@@ -82,22 +80,15 @@ class AllureGoRunConfigurationProducer : RunConfigurationProducer<AllureGoTestRu
 
     fun findSuiteRunner(method: GoMethodDeclaration): GoFunctionOrMethodDeclaration? {
         val receiverType = method.getReceiverGoType() ?: return null
+        val receiverContainingFile = receiverType.typeReferenceExpression?.resolve()?.containingFile
 
-        collectGoFiles(method.project).forEach { file ->
+        findSuiteRunner(receiverContainingFile as GoFile, receiverType)?.let { return it }
+
+        method.getGoPackage()?.collectGoFiles()?.forEach { file ->
             findSuiteRunner(file, receiverType)?.let { return it }
         }
 
         return null
-    }
-
-    fun collectGoFiles(project: Project): List<GoFile> {
-        val psiManager = PsiManager.getInstance(project)
-        val files = mutableListOf<GoFile>()
-        FileTypeIndex.getFiles(GoFileType.INSTANCE, GlobalSearchScope.projectScope(project)).forEach { vFile ->
-            val psiFile = psiManager.findFile(vFile)
-            if (psiFile is GoFile) files.add(psiFile)
-        }
-        return files
     }
 
     fun findSuiteRunner(goFile: GoFile, suite: GoType): GoFunctionOrMethodDeclaration? {
@@ -131,6 +122,10 @@ class AllureGoTestRunConfiguration(project: Project, name: String, configuration
     GoTestRunConfiguration(project, name, configurationType)
 
 class AllureGoTestRunConfigurationFactory(type: ConfigurationType) : ConfigurationFactory(type) {
+    override fun getId(): String {
+        return type.id
+    }
+
     override fun createTemplateConfiguration(project: Project): RunConfiguration =
         AllureGoTestRunConfiguration(project, "AllureGoTestRunConfiguration", type)
 }
