@@ -8,7 +8,7 @@
 
 <!-- Plugin description -->
 
-This GoLand plugin provides a convenient way to run test written using [ozontech/allure-go](https://github.com/ozontech/allure-go) framework directly from your IDE.
+This GoLand plugin provides a convenient way to run tests written using [ozontech/allure-go](https://github.com/ozontech/allure-go) framework directly from your IDE.
 
 <!-- Plugin description end -->
 
