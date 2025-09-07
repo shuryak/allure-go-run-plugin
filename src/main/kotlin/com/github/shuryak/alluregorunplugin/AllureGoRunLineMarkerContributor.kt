@@ -1,6 +1,7 @@
 package com.github.shuryak.alluregorunplugin
 
-import com.github.shuryak.alluregorunplugin.psi.GoPsiExtension.isAllureFrameworkProviderT
+import com.github.shuryak.alluregorunplugin.psi.GoPsiExtension.findAllureSuiteRunner
+import com.github.shuryak.alluregorunplugin.psi.GoPsiExtension.isAllureTestCandidate
 import com.goide.psi.GoMethodDeclaration
 import com.intellij.execution.lineMarker.ExecutorAction
 import com.intellij.execution.lineMarker.RunLineMarkerContributor
@@ -12,16 +13,12 @@ class AllureGoRunLineMarkerContributor : RunLineMarkerContributor() {
     override fun getInfo(element: PsiElement): Info? {
         if (element !is GoMethodDeclaration) return null
 
-        val functionName = element.name ?: return null
-        if (!functionName.startsWith("Test")) return null
+        if (!element.isAllureTestCandidate()) {
+            return null
+        }
 
-        val parameters = element.signature?.parameters?.parameterDeclarationList ?: return null
-        if (parameters.size != 1) return null
+        element.findAllureSuiteRunner() ?: return null
 
-        val parameter = parameters[0]
-        if (!parameter.isAllureFrameworkProviderT()) return null
-
-//        val action = RunAllureGoTestAction()
         val actions = mutableListOf<AnAction>()
         actions.addAll(ExecutorAction.getActions(0))
 

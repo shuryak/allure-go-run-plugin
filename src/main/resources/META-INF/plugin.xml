@@ -19,14 +19,4 @@
                 implementation="com.github.shuryak.alluregorunplugin.AllureGoTestConfigurationType"
         />
     </extensions>
-    <actions>
-        <action
-                class="com.github.shuryak.alluregorunplugin.RunAllureGoTestAction"
-                id="com.github.shuryak.alluregorunplugin.RunAllureGoTestAction"
-                text="Run Allure Go Test"
-                description="Runs the Allure Go Test configuration"
-        >
-            <add-to-group group-id="RunMenu" anchor="last"/>
-        </action>
-    </actions>
 </idea-plugin>
