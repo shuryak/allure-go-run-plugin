@@ -11,10 +11,6 @@
 - **Suite runner detection**: now supports both `suite.RunSuite()` and `suite.RunNamedSuite()`.
 - **Improved Go imports resolution**: `framework/provider` and `framework/suite` imports are now handled more accurately, using the `resolve()` method and avoiding unnecessary calls.
 
-### Added
-
-- Initial scaffold created from [IntelliJ Platform Plugin Template](https://github.com/JetBrains/intellij-platform-plugin-template)
-
 ## 0.0.2 - 2025-09-05
 
 ### Changed
